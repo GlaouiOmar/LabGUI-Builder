@@ -1,16 +1,19 @@
 import { useMemo } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
-import { generateTkinterCode } from '../../generator/tkinterGenerator';
+import { generateCode, BACKEND_LABELS } from '../../generator';
 
 export function CodePanel() {
   const document = useProjectStore((s) => s.document);
+  const backend = document.settings.codegen_backend || 'tkinter';
 
-  const code = useMemo(() => generateTkinterCode(document), [document]);
+  const code = useMemo(() => generateCode(document, backend), [document, backend]);
 
   return (
     <div className="h-full flex flex-col bg-lab-crust">
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-lab-surface0">
-        <span className="text-[10px] text-lab-overlay0 font-mono">Generated Python / tkinter</span>
+        <span className="text-[10px] text-lab-overlay0 font-mono">
+          Generated Python / {BACKEND_LABELS[backend]}
+        </span>
         <button
           onClick={() => {
             navigator.clipboard.writeText(code);

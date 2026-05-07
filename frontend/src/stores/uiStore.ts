@@ -3,7 +3,7 @@ import { immer } from 'zustand/middleware/immer';
 
 export type RightPanelTab = 'properties' | 'tree' | 'state' | 'instruments' | 'logging' | 'alarms';
 export type BottomPanelTab = 'code' | 'preview' | 'console' | 'events';
-export type LeftPanelTab = 'widgets' | 'templates';
+export type LeftPanelTab = 'widgets' | 'templates' | 'gallery';
 
 interface UIState {
   // Panel visibility
@@ -24,6 +24,7 @@ interface UIState {
 
   // Drag state
   draggingWidgetType: string | null;
+  draggingGalleryId: string | null;
   isResizing: boolean;
 }
 
@@ -45,6 +46,7 @@ interface UIActions {
   setGridSize: (size: number) => void;
 
   setDraggingWidgetType: (type: string | null) => void;
+  setDraggingGalleryId: (id: string | null) => void;
   setIsResizing: (v: boolean) => void;
 }
 
@@ -64,6 +66,7 @@ export const useUIStore = create<UIState & UIActions>()(
     gridSize: 8,
 
     draggingWidgetType: null,
+    draggingGalleryId: null,
     isResizing: false,
 
     toggleLeftPanel: () => set((s) => { s.leftPanelOpen = !s.leftPanelOpen; }),
@@ -83,6 +86,7 @@ export const useUIStore = create<UIState & UIActions>()(
     setGridSize: (size) => set({ gridSize: size }),
 
     setDraggingWidgetType: (type) => set({ draggingWidgetType: type }),
+    setDraggingGalleryId: (id) => set({ draggingGalleryId: id }),
     setIsResizing: (v) => set({ isResizing: v }),
   }))
 );

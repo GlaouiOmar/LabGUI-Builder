@@ -84,6 +84,19 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
             </select>
           </div>
 
+          <div>
+            <label className="block text-[11px] font-medium text-lab-subtext0 mb-1">Code Generator Backend</label>
+            <select
+              value={form.codegen_backend || 'tkinter'}
+              onChange={(e) => setForm((f) => ({ ...f, codegen_backend: e.target.value as any }))}
+              className="w-full bg-lab-base text-lab-text text-xs rounded px-2.5 py-2 border border-lab-surface1 outline-none focus:border-lab-blue"
+            >
+              <option value="tkinter">tkinter (standard)</option>
+              <option value="pyqt6">PyQt6</option>
+              <option value="pyside6">PySide6</option>
+            </select>
+          </div>
+
           <div className="pt-2 flex justify-end gap-2">
             <button
               type="button"

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
-import { generateTkinterCode } from '../../generator/tkinterGenerator';
+import { generateCode } from '../../generator';
 import { Terminal, Play, Trash2, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface LogEntry {
@@ -90,7 +90,7 @@ export function ConsolePanel() {
       return;
     }
 
-    const code = generateTkinterCode(document);
+    const code = generateCode(document, document.settings.codegen_backend || 'tkinter');
     setRunning(true);
     setError(null);
     addLog('info', '─'.repeat(40));

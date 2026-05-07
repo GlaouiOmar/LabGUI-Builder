@@ -4,6 +4,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { CanvasWidget } from './CanvasWidget';
 import type { GuideLine } from '../../types/canvas';
 import type { IRNode } from '../../types/ir';
+import { GALLERY_WIDGETS } from '../../lib/widgetGallery';
 
 export function CanvasArea() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -17,6 +18,7 @@ export function CanvasArea() {
   const gridSize = useUIStore((s) => s.gridSize);
   const snapToGrid = useUIStore((s) => s.snapToGrid);
   const draggingWidgetType = useUIStore((s) => s.draggingWidgetType);
+  const draggingGalleryId = useUIStore((s) => s.draggingGalleryId);
 
   const [dragOver, setDragOver] = useState(false);
   const [guides, setGuides] = useState<GuideLine[]>([]);
@@ -35,7 +37,7 @@ export function CanvasArea() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setDragOver(false);
-      if (!draggingWidgetType || !containerRef.current) return;
+      if (!containerRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
       let x = (e.clientX - rect.left) / zoom;
@@ -46,9 +48,37 @@ export function CanvasArea() {
         y = Math.round(y / gridSize) * gridSize;
       }
 
-      addWidget(draggingWidgetType as any, root.id, { x, y });
+      if (draggingGalleryId) {
+        const gallery = GALLERY_WIDGETS.find((g) => g.id === draggingGalleryId);
+        if (gallery) {
+          addWidget('Custom', root.id, { x, y });
+          // We need to update the newly added widget with gallery content
+          // addWidget creates the widget but we need to find it and update props
+          // This is async, so we'll use a timeout or we need to change addWidget to accept overrides
+          setTimeout(() => {
+            const newId = useProjectStore.getState().selectedIds[0];
+            if (newId) {
+              useProjectStore.getState().updateWidget(newId, {
+                name: gallery.id.replace(/-/g, '_'),
+                geometry: { x, y, ...gallery.defaultGeometry },
+                widget_props: {
+                  html: gallery.html,
+                  css: gallery.css,
+                  js: gallery.js,
+                  ...gallery.defaultProps,
+                },
+              });
+            }
+          }, 0);
+        }
+        return;
+      }
+
+      if (draggingWidgetType) {
+        addWidget(draggingWidgetType as any, root.id, { x, y });
+      }
     },
-    [draggingWidgetType, zoom, snapToGrid, gridSize, addWidget, root.id]
+    [draggingWidgetType, draggingGalleryId, zoom, snapToGrid, gridSize, addWidget, root.id]
   );
 
   const handleCanvasClick = useCallback(

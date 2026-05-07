@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useProjectStore } from '../../stores/projectStore';
 import { useUIStore } from '../../stores/uiStore';
-import { generateTkinterCode } from '../../generator/tkinterGenerator';
+import { generateCode } from '../../generator';
 import { useState, useRef } from 'react';
 import { SettingsModal } from './SettingsModal';
 
@@ -126,7 +126,8 @@ export function Header() {
   );
 
   const handleExportPy = useCallback(() => {
-    const code = generateTkinterCode(projectDoc);
+    const backend = projectDoc.settings.codegen_backend || 'tkinter';
+    const code = generateCode(projectDoc, backend);
     const blob = new Blob([code], { type: 'text/x-python' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -137,7 +138,8 @@ export function Header() {
   }, [projectDoc]);
 
   const handleRunPreview = useCallback(() => {
-    const code = generateTkinterCode(projectDoc);
+    const backend = projectDoc.settings.codegen_backend || 'tkinter';
+    const code = generateCode(projectDoc, backend);
     const blob = new Blob([code], { type: 'text/x-python' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

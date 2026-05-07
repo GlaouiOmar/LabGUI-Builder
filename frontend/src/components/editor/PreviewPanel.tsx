@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
-import { generateTkinterCode } from '../../generator/tkinterGenerator';
+import { generateCode } from '../../generator';
 import { requestPreview, checkBackendHealth, validateCode, PreviewWebSocket } from '../../lib/previewApi';
 import { Monitor, AlertCircle, RefreshCw, Play, Wifi, WifiOff, Zap } from 'lucide-react';
 
 export function PreviewPanel() {
   const document = useProjectStore((s) => s.document);
+  const backend = document.settings.codegen_backend || 'tkinter';
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +56,7 @@ export function PreviewPanel() {
   // Validate code whenever document changes
   useEffect(() => {
     if (!backendAvailable) return;
-    const code = generateTkinterCode(document);
+    const code = generateCode(document, backend);
     validateCode(code).then((result) => {
       if (!result.valid) {
         setSyntaxError(result.error);
@@ -69,7 +70,7 @@ export function PreviewPanel() {
   useEffect(() => {
     if (!wsConnected || !autoUpdate || syntaxError) return;
 
-    const code = generateTkinterCode(document);
+    const code = generateCode(document, backend);
     pendingCodeRef.current = code;
 
     if (debounceRef.current) {
@@ -98,7 +99,7 @@ export function PreviewPanel() {
     }
     setImageUrl(null);
 
-    const code = generateTkinterCode(document);
+    const code = generateCode(document, backend);
 
     // Prefer WebSocket if connected
     if (wsRef.current && wsConnected) {

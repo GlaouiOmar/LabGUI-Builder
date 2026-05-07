@@ -21,12 +21,14 @@ import {
   Columns,
   LayoutTemplate,
   FileCode,
+  GalleryHorizontal,
 } from 'lucide-react';
 import { WIDGET_DEFINITIONS, WIDGET_CATEGORIES } from '../../types/widgets';
 import type { WidgetType } from '../../types/ir';
 import { useUIStore } from '../../stores/uiStore';
 import { useProjectStore } from '../../stores/projectStore';
 import { LAB_TEMPLATES } from '../../lib/templates';
+import { GALLERY_WIDGETS, GALLERY_CATEGORIES } from '../../lib/widgetGallery';
 
 const iconMap: Record<string, React.ElementType> = {
   MousePointerClick,
@@ -102,6 +104,17 @@ export function WidgetPalette() {
           <LayoutTemplate className="w-3.5 h-3.5" />
           Templates
         </button>
+        <button
+          onClick={() => setLeftPanelTab('gallery')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${
+            leftPanelTab === 'gallery'
+              ? 'text-lab-blue border-b-2 border-lab-blue bg-lab-surface0/30'
+              : 'text-lab-subtext0 hover:text-lab-text'
+          }`}
+        >
+          <GalleryHorizontal className="w-3.5 h-3.5" />
+          Gallery
+        </button>
       </div>
 
       {leftPanelTab === 'widgets' && (
@@ -167,6 +180,61 @@ export function WidgetPalette() {
           ))}
         </div>
       )}
+
+      {leftPanelTab === 'gallery' && <GalleryPanel />}
+    </div>
+  );
+}
+
+function GalleryPanel() {
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    Gauge: true,
+    Chart: true,
+    Control: true,
+    Display: true,
+  });
+  const setDraggingGalleryId = useUIStore((s) => s.setDraggingGalleryId);
+
+  return (
+    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+      {GALLERY_CATEGORIES.map((cat) => {
+        const items = GALLERY_WIDGETS.filter((g) => g.category === cat.key);
+        if (items.length === 0) return null;
+        const isOpen = expanded[cat.key] ?? true;
+
+        return (
+          <div key={cat.key}>
+            <button
+              onClick={() => setExpanded((prev) => ({ ...prev, [cat.key]: !prev[cat.key] }))}
+              className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs font-bold text-lab-subtext1 uppercase tracking-wide hover:text-lab-text transition-colors"
+            >
+              {isOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+              {cat.label}
+            </button>
+
+            {isOpen && (
+              <div className="space-y-0.5 ml-1">
+                {items.map((item) => {
+                  const Icon = iconMap[item.icon] || Square;
+                  return (
+                    <div
+                      key={item.id}
+                      draggable
+                      onDragStart={() => setDraggingGalleryId(item.id)}
+                      onDragEnd={() => setDraggingGalleryId(null)}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded cursor-grab active:cursor-grabbing hover:bg-lab-surface0 text-lab-subtext0 hover:text-lab-text transition-colors group"
+                      title={item.description}
+                    >
+                      <Icon className="w-4 h-4 text-lab-overlay0 group-hover:text-lab-blue transition-colors" />
+                      <span className="text-xs font-medium">{item.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

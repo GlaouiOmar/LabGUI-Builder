@@ -34,6 +34,7 @@ export function createNewDocument(name = 'Untitled Project'): IRDocument {
       window_width: 800,
       window_height: 600,
       theme: 'clam',
+      codegen_backend: 'tkinter',
     },
   };
 }

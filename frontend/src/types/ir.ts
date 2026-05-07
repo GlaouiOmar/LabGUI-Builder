@@ -149,6 +149,7 @@ export interface IRDocument {
     window_width: number;
     window_height: number;
     theme: string;
+    codegen_backend: 'tkinter' | 'pyqt6' | 'pyside6';
   };
 }
 
