@@ -324,6 +324,7 @@ export function CanvasWidget({
             Canvas
           </div>
         )}
+        {node.type === 'Custom' && <CustomWidgetPreview node={node} />}
         {(node.type === 'Button' || node.type === 'Label') && (
           <span className="truncate">{displayText}</span>
         )}
@@ -349,5 +350,46 @@ export function CanvasWidget({
         </>
       )}
     </div>
+  );
+}
+
+function CustomWidgetPreview({ node }: { node: IRNode }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const props = node.widget_props as { html?: string; css?: string; js?: string } | undefined;
+
+  const html = props?.html ?? '<!-- Custom widget -->';
+  const css = props?.css ?? '';
+  const js = props?.js ?? '';
+
+  const srcDoc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { margin: 0; padding: 0; overflow: hidden; background: transparent; }
+${css}
+</style>
+</head>
+<body>
+${html}
+<script>
+try {
+  ${js}
+} catch (e) {
+  console.error(e);
+}
+<\/script>
+</body>
+</html>`;
+
+  return (
+    <iframe
+      ref={iframeRef}
+      title={node.name}
+      sandbox="allow-scripts"
+      className="w-full h-full rounded"
+      style={{ border: 'none', background: 'transparent' }}
+      srcDoc={srcDoc}
+    />
   );
 }

@@ -21,7 +21,8 @@ export type WidgetType =
   | 'GridContainer'
   | 'LabelFrame'
   | 'Notebook'
-  | 'PanedWindow';
+  | 'PanedWindow'
+  | 'Custom';
 
 export interface IRGeometry {
   x: number;

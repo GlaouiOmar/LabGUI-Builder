@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { getWidgetDef } from '../../types/widgets';
 import { Trash2, AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, ArrowLeftRight, ArrowUpDown } from 'lucide-react';
@@ -133,6 +134,13 @@ export function PropertiesPanel() {
       <PropertyGroup title="Events">
         <EventsEditor node={node} />
       </PropertyGroup>
+
+      {/* Custom Widget Editor */}
+      {node.type === 'Custom' && (
+        <PropertyGroup title="Custom HTML/CSS/JS">
+          <CustomWidgetEditor node={node} />
+        </PropertyGroup>
+      )}
 
       {/* Style */}
       <PropertyGroup title="Style">
@@ -437,6 +445,46 @@ function MultiAlignTools({ nodes }: { nodes: IRNode[] }) {
         {btn(<ArrowLeftRight className="w-3.5 h-3.5" />, 'Distribute Horizontally', distributeH)}
         {btn(<ArrowUpDown className="w-3.5 h-3.5" />, 'Distribute Vertically', distributeV)}
       </div>
+    </div>
+  );
+}
+
+function CustomWidgetEditor({ node }: { node: IRNode }) {
+  const updateWidget = useProjectStore((s) => s.updateWidget);
+  const props = (node.widget_props ?? {}) as { html?: string; css?: string; js?: string };
+
+  const update = (key: 'html' | 'css' | 'js', value: string) => {
+    updateWidget(node.id, {
+      widget_props: { ...props, [key]: value },
+    });
+  };
+
+  const [activeTab, setActiveTab] = useState<'html' | 'css' | 'js'>('html');
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-1">
+        {(['html', 'css', 'js'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setActiveTab(t)}
+            className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase transition-colors ${
+              activeTab === t
+                ? 'bg-lab-blue/20 text-lab-blue'
+                : 'bg-lab-surface0 text-lab-overlay0 hover:text-lab-text'
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <textarea
+        value={props[activeTab] ?? ''}
+        onChange={(e) => update(activeTab, e.target.value)}
+        placeholder={`<!-- Enter ${activeTab.toUpperCase()} here -->`}
+        className="w-full h-32 bg-lab-base text-lab-text text-[11px] font-mono rounded px-2 py-1.5 border border-lab-surface1 outline-none focus:border-lab-blue resize-none"
+        spellCheck={false}
+      />
     </div>
   );
 }

@@ -34,6 +34,16 @@ function emitWidget(
   windowWidth?: number,
   windowHeight?: number
 ): string[] {
+  // Custom HTML widgets are not renderable in tkinter; emit a placeholder
+  if (node.type === 'Custom') {
+    const varName = sanitizeName(node.name);
+    return [
+      `${indent(level)}# Custom widget "${node.name}" (HTML/CSS/JS — not renderable in tkinter)`,
+      `${indent(level)}self.${varName} = tk.Label(${parentVar}, text="[Custom: ${node.abstract_props.label || node.name}]", bg="#313244", fg="#cdd6f4")`,
+      `${indent(level)}self.${varName}.place(x=${Math.round(node.geometry.x)}, y=${Math.round(node.geometry.y)}, width=${Math.round(node.geometry.w)}, height=${Math.round(node.geometry.h)})`,
+    ];
+  }
+
   const varName = sanitizeName(node.name);
   const tkType = node.type === 'GridContainer' ? 'Frame' : node.type;
   const isTtk = ['Combobox', 'Notebook', 'Scale', 'Spinbox'].includes(node.type);

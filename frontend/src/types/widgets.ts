@@ -196,6 +196,17 @@ export const WIDGET_DEFINITIONS: WidgetDef[] = [
     defaultStyle: { bg: '#313244', fg: '#cdd6f4', font_family: 'Inter', font_size: 11, font_weight: 'normal', border_width: 1, border_color: '#45475a', border_radius: 4, relief: 'flat' },
     hasChildren: true,
   },
+  {
+    type: 'Custom',
+    label: 'Custom HTML',
+    description: 'Custom widget built with HTML/CSS/JS',
+    category: 'Display',
+    icon: 'Code',
+    defaultGeometry: { x: 0, y: 0, w: 300, h: 200 },
+    defaultProps: { label: 'Custom', enabled: true, visible: true },
+    defaultStyle: { bg: '#1e1e2e', fg: '#cdd6f4', font_family: 'Inter', font_size: 11, font_weight: 'normal', border_width: 1, border_color: '#45475a', border_radius: 4, relief: 'flat' },
+    hasChildren: false,
+  },
 ];
 
 export const WIDGET_CATEGORIES: { key: string; label: string }[] = [

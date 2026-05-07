@@ -1,5 +1,5 @@
 import { useProjectStore } from '../../stores/projectStore';
-import { ChevronDown, ChevronRight, Square, MousePointerClick, Type, TextCursor, AlignLeft, Paintbrush, List, SlidersHorizontal, CheckSquare, CircleDot, ChevronsUpDown, ArrowUpDown, LayoutGrid, PanelTop, BookOpen, Columns } from 'lucide-react';
+import { ChevronDown, ChevronRight, Square, MousePointerClick, Type, TextCursor, AlignLeft, Paintbrush, List, SlidersHorizontal, CheckSquare, CircleDot, ChevronsUpDown, ArrowUpDown, LayoutGrid, PanelTop, BookOpen, Columns, Code } from 'lucide-react';
 import { useState } from 'react';
 import type { IRNode } from '../../types/ir';
 
@@ -20,6 +20,7 @@ const iconMap: Record<string, React.ElementType> = {
   LabelFrame: PanelTop,
   Notebook: BookOpen,
   PanedWindow: Columns,
+  Custom: Code,
 };
 
 export function WidgetTreePanel() {
