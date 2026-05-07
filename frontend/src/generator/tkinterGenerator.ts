@@ -46,7 +46,7 @@ function emitWidget(
 
   const varName = sanitizeName(node.name);
   const tkType = node.type === 'GridContainer' ? 'Frame' : node.type;
-  const isTtk = ['Combobox', 'Notebook', 'Scale', 'Spinbox'].includes(node.type);
+  const isTtk = ['Combobox', 'Notebook', 'Scale', 'Spinbox', 'Progressbar', 'Treeview', 'Separator'].includes(node.type);
   const prefix = isTtk ? 'ttk.' : 'tk.';
 
   let lines: string[] = [];
@@ -56,8 +56,16 @@ function emitWidget(
     cfg += (cfg ? ', ' : '') + `text="${node.abstract_props.label}"`;
   }
 
-  const constructorArgs = cfg ? `${parentVar}, ${cfg}` : parentVar;
-  lines.push(`${indent(level)}self.${varName} = ${prefix}${tkType}(${constructorArgs})`);
+  // OptionMenu has a different constructor signature
+  if (node.type === 'OptionMenu') {
+    const values = (node.widget_props?.values as string[] | undefined) ?? ['Option 1', 'Option 2'];
+    const varName2 = sanitizeName(node.widget_props?.variable as string || `${node.name}_var`);
+    lines.push(`${indent(level)}self.${varName2} = tk.StringVar(value="${values[0]}")`);
+    lines.push(`${indent(level)}self.${varName} = tk.OptionMenu(${parentVar}, self.${varName2}, ${values.map((v: string) => `"${v}"`).join(', ')})`);
+  } else {
+    const constructorArgs = cfg ? `${parentVar}, ${cfg}` : parentVar;
+    lines.push(`${indent(level)}self.${varName} = ${prefix}${tkType}(${constructorArgs})`);
+  }
 
   if (isRoot) {
     lines.push(
@@ -111,7 +119,28 @@ function emitWidget(
       lines.push(`${indent(level)}self.${varName}.config(variable=self.${String(node.widget_props.variable)})`);
     }
   }
-
+  if (node.type === 'Progressbar') {
+    const orient = node.widget_props?.orient ?? 'horizontal';
+    const mode = node.widget_props?.mode ?? 'determinate';
+    const max = node.widget_props?.maximum ?? 100;
+    lines.push(`${indent(level)}self.${varName}.config(orient=tk.${orient.toString().toUpperCase()}, mode="${mode}", maximum=${max})`);
+  }
+  if (node.type === 'Treeview') {
+    const columns = (node.widget_props?.columns as string[] | undefined) ?? ['Column 1', 'Column 2'];
+    lines.push(`${indent(level)}self.${varName}['columns'] = ${JSON.stringify(columns)}`);
+    for (const col of columns) {
+      lines.push(`${indent(level)}self.${varName}.heading("${col}", text="${col}")`);
+      lines.push(`${indent(level)}self.${varName}.column("${col}", width=100)`);
+    }
+  }
+  if (node.type === 'Separator') {
+    const orient = node.widget_props?.orient ?? 'horizontal';
+    lines.push(`${indent(level)}self.${varName}.config(orient=tk.${orient.toString().toUpperCase()})`);
+  }
+  if (node.type === 'Scrollbar') {
+    const orient = node.widget_props?.orient ?? 'vertical';
+    lines.push(`${indent(level)}self.${varName}.config(orient=tk.${orient.toString().toUpperCase()})`);
+  }
   for (const ev of node.events) {
     if (ev.name === 'on_click' && ev.inline_code) {
       lines.push(`${indent(level)}self.${varName}.config(command=self._on_${varName}_click)`);

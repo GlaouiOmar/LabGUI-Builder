@@ -22,6 +22,11 @@ export type WidgetType =
   | 'LabelFrame'
   | 'Notebook'
   | 'PanedWindow'
+  | 'Progressbar'
+  | 'Treeview'
+  | 'Separator'
+  | 'Scrollbar'
+  | 'OptionMenu'
   | 'Custom';
 
 export interface IRGeometry {

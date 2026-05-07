@@ -1,5 +1,5 @@
 import { useProjectStore } from '../../stores/projectStore';
-import { ChevronDown, ChevronRight, Square, MousePointerClick, Type, TextCursor, AlignLeft, Paintbrush, List, SlidersHorizontal, CheckSquare, CircleDot, ChevronsUpDown, ArrowUpDown, LayoutGrid, PanelTop, BookOpen, Columns, Code } from 'lucide-react';
+import { ChevronDown, ChevronRight, Square, MousePointerClick, Type, TextCursor, AlignLeft, Paintbrush, List, SlidersHorizontal, CheckSquare, CircleDot, ChevronsUpDown, ArrowUpDown, LayoutGrid, PanelTop, BookOpen, Columns, Code, Activity, Table, Minus, ScrollText, ListStart } from 'lucide-react';
 import { useState } from 'react';
 import type { IRNode } from '../../types/ir';
 
@@ -20,6 +20,11 @@ const iconMap: Record<string, React.ElementType> = {
   LabelFrame: PanelTop,
   Notebook: BookOpen,
   PanedWindow: Columns,
+  Progressbar: Activity,
+  Treeview: Table,
+  Separator: Minus,
+  Scrollbar: ScrollText,
+  OptionMenu: ListStart,
   Custom: Code,
 };
 

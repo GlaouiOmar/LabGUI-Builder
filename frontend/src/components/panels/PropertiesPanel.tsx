@@ -135,6 +135,58 @@ export function PropertiesPanel() {
         <EventsEditor node={node} />
       </PropertyGroup>
 
+      {/* Widget-specific config */}
+      {node.type === 'Progressbar' && (
+        <PropertyGroup title="Progressbar">
+          <SelectField
+            label="Orient"
+            value={(node.widget_props?.orient as string) || 'horizontal'}
+            options={['horizontal', 'vertical']}
+            onChange={(v) => updateWidget(node.id, { widget_props: { ...node.widget_props, orient: v } })}
+          />
+          <SelectField
+            label="Mode"
+            value={(node.widget_props?.mode as string) || 'determinate'}
+            options={['determinate', 'indeterminate']}
+            onChange={(v) => updateWidget(node.id, { widget_props: { ...node.widget_props, mode: v } })}
+          />
+          <NumberField
+            label="Maximum"
+            value={(node.widget_props?.maximum as number) || 100}
+            onChange={(v) => updateWidget(node.id, { widget_props: { ...node.widget_props, maximum: v } })}
+          />
+        </PropertyGroup>
+      )}
+      {node.type === 'Treeview' && (
+        <PropertyGroup title="Treeview">
+          <TextField
+            label="Columns"
+            value={((node.widget_props?.columns as string[]) || ['Column 1', 'Column 2']).join(', ')}
+            onChange={(v) => updateWidget(node.id, { widget_props: { ...node.widget_props, columns: v.split(',').map((s) => s.trim()).filter(Boolean) } })}
+          />
+        </PropertyGroup>
+      )}
+      {['Separator', 'Scrollbar'].includes(node.type) && (
+        <PropertyGroup title="Orientation">
+          <SelectField
+            label="Orient"
+            value={(node.widget_props?.orient as string) || 'horizontal'}
+            options={['horizontal', 'vertical']}
+            onChange={(v) => updateWidget(node.id, { widget_props: { ...node.widget_props, orient: v } })}
+          />
+        </PropertyGroup>
+      )}
+      {node.type === 'OptionMenu' && (
+        <PropertyGroup title="OptionMenu">
+          <TextField
+            label="Values"
+            value={((node.widget_props?.values as string[]) || ['Option 1', 'Option 2']).join(', ')}
+            onChange={(v) => updateWidget(node.id, { widget_props: { ...node.widget_props, values: v.split(',').map((s) => s.trim()).filter(Boolean) } })}
+          />
+          <VariableBindingEditor node={node} />
+        </PropertyGroup>
+      )}
+
       {/* Custom Widget Editor */}
       {node.type === 'Custom' && (
         <PropertyGroup title="Custom HTML/CSS/JS">
@@ -160,6 +212,35 @@ export function PropertiesPanel() {
         <ColorField label="Border Color" value={style.border_color || ''} onChange={(v) => updateWidgetStyle(node.id, { border_color: v || undefined })} />
         <NumberField label="Border Radius" value={style.border_radius || 0} onChange={(v) => updateWidgetStyle(node.id, { border_radius: v })} />
       </PropertyGroup>
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[11px] text-lab-subtext0 w-16 shrink-0">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 min-w-0 bg-lab-surface0 text-lab-text text-xs rounded px-2 py-1.5 border border-lab-surface1 outline-none focus:border-lab-blue"
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

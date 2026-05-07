@@ -324,6 +324,53 @@ export function CanvasWidget({
             Canvas
           </div>
         )}
+        {node.type === 'Progressbar' && (
+          <div className="w-full h-full flex items-center px-1">
+            <div className="w-full h-2 bg-lab-surface0 rounded-full overflow-hidden">
+              <div className="h-full bg-lab-blue rounded-full" style={{ width: '60%' }} />
+            </div>
+          </div>
+        )}
+        {node.type === 'Treeview' && (
+          <div className="w-full h-full bg-lab-base/40 rounded overflow-hidden text-xs border border-lab-surface0">
+            <div className="flex border-b border-lab-surface0 bg-lab-surface0/50">
+              <div className="px-2 py-1 flex-1 font-medium text-lab-subtext0">Column 1</div>
+              <div className="px-2 py-1 flex-1 font-medium text-lab-subtext0">Column 2</div>
+            </div>
+            <div className="flex border-b border-lab-surface0/50">
+              <div className="px-2 py-1 flex-1 text-lab-subtext0">Item 1</div>
+              <div className="px-2 py-1 flex-1 text-lab-subtext0">Value 1</div>
+            </div>
+            <div className="flex border-b border-lab-surface0/50">
+              <div className="px-2 py-1 flex-1 text-lab-subtext0">Item 2</div>
+              <div className="px-2 py-1 flex-1 text-lab-subtext0">Value 2</div>
+            </div>
+          </div>
+        )}
+        {node.type === 'Separator' && (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-px bg-lab-surface2" style={{ transform: node.geometry.w < node.geometry.h ? 'rotate(90deg)' : 'none' }} />
+          </div>
+        )}
+        {node.type === 'Scrollbar' && (
+          <div className="w-full h-full flex items-center justify-center p-0.5">
+            {node.geometry.w > node.geometry.h ? (
+              <div className="w-full h-3 bg-lab-surface0 rounded-full relative">
+                <div className="absolute left-2 top-0 h-full w-8 bg-lab-surface2 rounded-full" />
+              </div>
+            ) : (
+              <div className="h-full w-3 bg-lab-surface0 rounded-full relative">
+                <div className="absolute top-2 left-0 w-full h-8 bg-lab-surface2 rounded-full" />
+              </div>
+            )}
+          </div>
+        )}
+        {node.type === 'OptionMenu' && (
+          <div className="w-full h-full flex items-center px-2 bg-lab-base/60 rounded border border-lab-surface0 justify-between">
+            <span className="truncate text-lab-text">{node.abstract_props.label || 'Select'}</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" className="text-lab-overlay0"><path d="M0 0l5 6 5-6z" fill="currentColor"/></svg>
+          </div>
+        )}
         {node.type === 'Custom' && <CustomWidgetPreview node={node} />}
         {(node.type === 'Button' || node.type === 'Label') && (
           <span className="truncate">{displayText}</span>
