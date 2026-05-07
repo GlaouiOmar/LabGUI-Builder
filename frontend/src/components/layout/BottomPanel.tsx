@@ -1,10 +1,12 @@
 import { useUIStore } from '../../stores/uiStore';
 import { CodePanel } from '../editor/CodePanel';
 import { PreviewPanel } from '../editor/PreviewPanel';
+import { ConsolePanel } from '../editor/ConsolePanel';
 
 const tabs = [
   { key: 'code' as const, label: 'Live Code' },
   { key: 'preview' as const, label: 'Preview' },
+  { key: 'console' as const, label: 'Console' },
   { key: 'events' as const, label: 'Event Log' },
 ];
 
@@ -32,6 +34,7 @@ export function BottomPanel() {
       <div className="flex-1 overflow-hidden">
         {activeTab === 'code' && <CodePanel />}
         {activeTab === 'preview' && <PreviewPanel />}
+        {activeTab === 'console' && <ConsolePanel />}
         {activeTab === 'events' && (
           <div className="p-4 text-lab-overlay0 text-xs">
             Event log will appear here.

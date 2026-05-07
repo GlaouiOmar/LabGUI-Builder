@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 export type RightPanelTab = 'properties' | 'tree' | 'state' | 'instruments' | 'logging' | 'alarms';
-export type BottomPanelTab = 'code' | 'preview' | 'events';
+export type BottomPanelTab = 'code' | 'preview' | 'console' | 'events';
 export type LeftPanelTab = 'widgets' | 'templates';
 
 interface UIState {
