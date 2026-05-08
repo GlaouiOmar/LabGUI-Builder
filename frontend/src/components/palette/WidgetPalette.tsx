@@ -169,10 +169,18 @@ export function WidgetPalette() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex border-b border-lab-surface0">
+      <div
+        className="flex border-b border-lab-surface0 overflow-x-auto scrollbar-hide"
+        onWheel={(e) => {
+          if (e.deltaY !== 0) {
+            e.currentTarget.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }
+        }}
+      >
         <button
           onClick={() => setLeftPanelTab('widgets')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${
+          className={`shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors ${
             leftPanelTab === 'widgets'
               ? 'text-lab-blue border-b-2 border-lab-blue bg-lab-surface0/30'
               : 'text-lab-subtext0 hover:text-lab-text'
@@ -183,7 +191,7 @@ export function WidgetPalette() {
         </button>
         <button
           onClick={() => setLeftPanelTab('templates')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${
+          className={`shrink-0 flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-medium transition-colors ${
             leftPanelTab === 'templates'
               ? 'text-lab-blue border-b-2 border-lab-blue bg-lab-surface0/30'
               : 'text-lab-subtext0 hover:text-lab-text'

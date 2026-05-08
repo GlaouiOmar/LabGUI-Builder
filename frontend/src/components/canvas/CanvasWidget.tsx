@@ -305,13 +305,7 @@ export function CanvasWidget({
           </div>
         )}
         {node.type === 'Notebook' && (
-          <div className="w-full h-full flex flex-col">
-            <div className="flex gap-0.5">
-              <div className="px-3 py-1 bg-lab-surface1 text-xs rounded-t">Tab 1</div>
-              <div className="px-3 py-1 bg-lab-surface0 text-xs rounded-t text-lab-overlay0">Tab 2</div>
-            </div>
-            <div className="flex-1 border border-lab-surface0 rounded-b bg-lab-base/20" />
-          </div>
+          <NotebookPreview node={node} />
         )}
         {node.type === 'PanedWindow' && (
           <div className="w-full h-full flex">
@@ -412,6 +406,44 @@ export function CanvasWidget({
   );
 }
 
+function NotebookPreview({ node }: { node: IRNode }) {
+  const [activeTab, setActiveTab] = useState(0);
+  const tabs = node.children.length > 0
+    ? node.children.map((c) => c.abstract_props.label || c.name)
+    : ['Tab 1', 'Tab 2'];
+
+  return (
+    <div className="w-full h-full flex flex-col">
+      <div className="flex gap-0.5">
+        {tabs.map((tab, i) => (
+          <button
+            key={i}
+            onClick={(e) => { e.stopPropagation(); setActiveTab(i); }}
+            className={`px-3 py-1 text-xs rounded-t transition-colors ${
+              activeTab === i
+                ? 'bg-lab-surface1 text-lab-text'
+                : 'bg-lab-surface0 text-lab-overlay0 hover:text-lab-text'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+      <div className="flex-1 border border-lab-surface0 rounded-b bg-lab-base/20 relative overflow-hidden">
+        {node.children[activeTab] ? (
+          <div className="absolute inset-0 p-2">
+            <span className="text-xs text-lab-overlay0">{node.children[activeTab].abstract_props.label || node.children[activeTab].name}</span>
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-lab-overlay0 text-xs">
+            Tab {activeTab + 1} content
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CustomWidgetPreview({ node }: { node: IRNode }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const props = node.widget_props as { html?: string; css?: string; js?: string } | undefined;
@@ -421,11 +453,11 @@ function CustomWidgetPreview({ node }: { node: IRNode }) {
   const js = props?.js ?? '';
 
   const srcDoc = `<!DOCTYPE html>
-<html>
+<html style="width:100%;height:100%;">
 <head>
 <meta charset="utf-8">
 <style>
-body { margin: 0; padding: 0; overflow: hidden; background: transparent; }
+html, body { margin: 0; padding: 0; overflow: hidden; background: transparent; width: 100%; height: 100%; }
 ${css}
 </style>
 </head>
