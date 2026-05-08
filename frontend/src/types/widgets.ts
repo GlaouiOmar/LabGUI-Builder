@@ -37,7 +37,7 @@ export const WIDGET_DEFINITIONS: WidgetDef[] = [
     icon: 'TextCursor',
     defaultGeometry: { x: 0, y: 0, w: 140, h: 28 },
     defaultProps: { label: '', enabled: true, visible: true },
-    defaultStyle: { bg: '#313244', fg: '#cdd6f4', font_family: 'Inter', font_size: 11, font_weight: 'normal', padding: [4, 8], border_width: 1, border_color: '#585b70', border_radius: 4, relief: 'flat' },
+    defaultStyle: { bg: '#1e1e2e', fg: '#cdd6f4', font_family: 'Inter', font_size: 11, font_weight: 'normal', padding: [4, 8], border_width: 1, border_color: '#585b70', border_radius: 4, relief: 'flat' },
     hasChildren: false,
   },
   {
@@ -70,7 +70,7 @@ export const WIDGET_DEFINITIONS: WidgetDef[] = [
     icon: 'SlidersHorizontal',
     defaultGeometry: { x: 0, y: 0, w: 160, h: 40 },
     defaultProps: { label: '', enabled: true, visible: true },
-    defaultStyle: { bg: '#313244', fg: '#89b4fa', font_family: 'Inter', font_size: 10, font_weight: 'normal' },
+    defaultStyle: { bg: '#1e1e2e', fg: '#89b4fa', font_family: 'Inter', font_size: 10, font_weight: 'normal' },
     hasChildren: false,
   },
   {
@@ -215,7 +215,7 @@ export const WIDGET_DEFINITIONS: WidgetDef[] = [
     icon: 'Table',
     defaultGeometry: { x: 0, y: 0, w: 300, h: 200 },
     defaultProps: { label: '', enabled: true, visible: true },
-    defaultStyle: { bg: '#313244', fg: '#cdd6f4', font_family: 'Inter', font_size: 10, font_weight: 'normal', border_width: 1, border_color: '#585b70', border_radius: 4, relief: 'flat' },
+    defaultStyle: { bg: '#1e1e2e', fg: '#cdd6f4', font_family: 'Inter', font_size: 10, font_weight: 'normal', border_width: 1, border_color: '#585b70', border_radius: 4, relief: 'flat' },
     hasChildren: false,
   },
   {
@@ -226,7 +226,7 @@ export const WIDGET_DEFINITIONS: WidgetDef[] = [
     icon: 'Minus',
     defaultGeometry: { x: 0, y: 0, w: 200, h: 2 },
     defaultProps: { label: '', enabled: true, visible: true },
-    defaultStyle: { bg: '#45475a', fg: '#45475a', font_family: 'Inter', font_size: 1, font_weight: 'normal' },
+    defaultStyle: { bg: 'transparent', fg: '#45475a', font_family: 'Inter', font_size: 1, font_weight: 'normal' },
     hasChildren: false,
   },
   {
@@ -237,7 +237,7 @@ export const WIDGET_DEFINITIONS: WidgetDef[] = [
     icon: 'ScrollText',
     defaultGeometry: { x: 0, y: 0, w: 16, h: 120 },
     defaultProps: { label: '', enabled: true, visible: true },
-    defaultStyle: { bg: '#313244', fg: '#585b70', font_family: 'Inter', font_size: 10, font_weight: 'normal' },
+    defaultStyle: { bg: '#1e1e2e', fg: '#585b70', font_family: 'Inter', font_size: 10, font_weight: 'normal' },
     hasChildren: false,
   },
   {

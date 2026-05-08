@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { useUIStore } from '../../stores/uiStore';
 import { CanvasWidget } from './CanvasWidget';
@@ -6,12 +6,32 @@ import type { GuideLine } from '../../types/canvas';
 import type { IRNode } from '../../types/ir';
 import { GALLERY_WIDGETS } from '../../lib/widgetGallery';
 
+interface SelectionBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+function collectWidgets(node: IRNode, rootId: string, out: IRNode[]) {
+  if (node.id !== rootId) {
+    out.push(node);
+  }
+  for (const child of node.children) {
+    collectWidgets(child, rootId, out);
+  }
+}
+
 export function CanvasArea() {
   const containerRef = useRef<HTMLDivElement>(null);
   const root = useProjectStore((s) => s.document.root);
   const addWidget = useProjectStore((s) => s.addWidget);
   const selectedIds = useProjectStore((s) => s.selectedIds);
+  const toggleSelection = useProjectStore((s) => s.toggleSelection);
+  const selectAll = useProjectStore((s) => s.selectAll);
   const clearSelection = useProjectStore((s) => s.clearSelection);
+  const removeSelectedWidgets = useProjectStore((s) => s.removeSelectedWidgets);
+  const nudgeSelected = useProjectStore((s) => s.nudgeSelected);
 
   const zoom = useUIStore((s) => s.zoom) / 100;
   const showGrid = useUIStore((s) => s.showGrid);
@@ -22,6 +42,18 @@ export function CanvasArea() {
 
   const [dragOver, setDragOver] = useState(false);
   const [guides, setGuides] = useState<GuideLine[]>([]);
+
+  // Rubber-band selection state
+  const [selecting, setSelecting] = useState(false);
+  const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
+  const selectStart = useRef({ x: 0, y: 0 });
+
+  // Collect all widgets into a flat list — MUST be before callbacks that reference it
+  const flatWidgets: IRNode[] = [];
+  collectWidgets(root, root.id, flatWidgets);
+
+  const canvasW = Math.max(2000, root.geometry.w * zoom + 400);
+  const canvasH = Math.max(2000, root.geometry.h * zoom + 400);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -52,9 +84,6 @@ export function CanvasArea() {
         const gallery = GALLERY_WIDGETS.find((g) => g.id === draggingGalleryId);
         if (gallery) {
           addWidget('Custom', root.id, { x, y });
-          // We need to update the newly added widget with gallery content
-          // addWidget creates the widget but we need to find it and update props
-          // This is async, so we'll use a timeout or we need to change addWidget to accept overrides
           setTimeout(() => {
             const newId = useProjectStore.getState().selectedIds[0];
             if (newId) {
@@ -81,6 +110,121 @@ export function CanvasArea() {
     [draggingWidgetType, draggingGalleryId, zoom, snapToGrid, gridSize, addWidget, root.id]
   );
 
+  // Mouse selection handlers
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      // Only start selection on background click (not on widgets)
+      if (e.button !== 0) return;
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-widget]')) return;
+
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = (e.clientX - rect.left) / zoom;
+      const y = (e.clientY - rect.top) / zoom;
+
+      selectStart.current = { x, y };
+      setSelecting(true);
+      setSelectionBox({ x, y, w: 0, h: 0 });
+
+      if (!e.ctrlKey && !e.metaKey) {
+        clearSelection();
+      }
+    },
+    [zoom, clearSelection]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!selecting || !containerRef.current) return;
+      e.preventDefault();
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / zoom;
+      const y = (e.clientY - rect.top) / zoom;
+
+      const x1 = Math.min(selectStart.current.x, x);
+      const y1 = Math.min(selectStart.current.y, y);
+      const x2 = Math.max(selectStart.current.x, x);
+      const y2 = Math.max(selectStart.current.y, y);
+
+      setSelectionBox({ x: x1, y: y1, w: x2 - x1, h: y2 - y1 });
+    },
+    [selecting, zoom]
+  );
+
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      if (!selecting || !selectionBox) {
+        setSelecting(false);
+        return;
+      }
+
+      // Find widgets intersecting the selection box
+      const OFFSET = { x: 20, y: 20 };
+      const box = {
+        left: selectionBox.x - OFFSET.x,
+        top: selectionBox.y - OFFSET.y,
+        right: selectionBox.x + selectionBox.w - OFFSET.x,
+        bottom: selectionBox.y + selectionBox.h - OFFSET.y,
+      };
+
+      for (const node of flatWidgets) {
+        const widgetLeft = node.geometry.x;
+        const widgetTop = node.geometry.y;
+        const widgetRight = node.geometry.x + node.geometry.w;
+        const widgetBottom = node.geometry.y + node.geometry.h;
+
+        const intersects =
+          widgetLeft < box.right &&
+          widgetRight > box.left &&
+          widgetTop < box.bottom &&
+          widgetBottom > box.top;
+
+        if (intersects) {
+          if (e.ctrlKey || e.metaKey) {
+            toggleSelection(node.id);
+          } else if (!selectedIds.includes(node.id)) {
+            toggleSelection(node.id);
+          }
+        }
+      }
+
+      setSelecting(false);
+      setSelectionBox(null);
+    },
+    [selecting, selectionBox, flatWidgets, selectedIds, toggleSelection]
+  );
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        removeSelectedWidgets();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        selectAll();
+      }
+
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && selectedIds.length > 0 && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        const step = e.shiftKey ? (snapToGrid ? gridSize : 10) : 1;
+        const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
+        const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+        nudgeSelected(dx, dy);
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [selectedIds, removeSelectedWidgets, selectAll, nudgeSelected, snapToGrid, gridSize]);
+
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === containerRef.current) {
@@ -90,21 +234,6 @@ export function CanvasArea() {
     [clearSelection]
   );
 
-  // Collect all widgets into a flat list
-  const flatWidgets: IRNode[] = [];
-  function collect(node: IRNode) {
-    if (node.id !== root.id) {
-      flatWidgets.push(node);
-    }
-    for (const child of node.children) {
-      collect(child);
-    }
-  }
-  collect(root);
-
-  const canvasW = Math.max(2000, root.geometry.w * zoom + 400);
-  const canvasH = Math.max(2000, root.geometry.h * zoom + 400);
-
   return (
     <div
       ref={containerRef}
@@ -113,6 +242,9 @@ export function CanvasArea() {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleCanvasClick}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     >
       {/* Grid background */}
       {showGrid && (
@@ -153,6 +285,19 @@ export function CanvasArea() {
           }
         />
       ))}
+
+      {/* Selection box overlay */}
+      {selecting && selectionBox && (
+        <div
+          className="absolute pointer-events-none z-20 border border-lab-blue bg-lab-blue/10"
+          style={{
+            left: selectionBox.x,
+            top: selectionBox.y,
+            width: selectionBox.w,
+            height: selectionBox.h,
+          }}
+        />
+      )}
 
       {/* Canvas content */}
       <div

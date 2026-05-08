@@ -192,6 +192,7 @@ export function CanvasWidget({
 
   return (
     <div
+      data-widget={node.id}
       className={`absolute select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       style={{
         left: containerOffset.x + node.geometry.x,
@@ -325,42 +326,53 @@ export function CanvasWidget({
           </div>
         )}
         {node.type === 'Progressbar' && (
-          <div className="w-full h-full flex items-center px-1">
-            <div className="w-full h-2 bg-lab-surface0 rounded-full overflow-hidden">
-              <div className="h-full bg-lab-blue rounded-full" style={{ width: '60%' }} />
+          <div className="w-full h-full flex flex-col items-center justify-center px-2 gap-1">
+            <span className="text-[10px] text-lab-overlay0 font-mono">{node.abstract_props.label || 'Progress'}</span>
+            <div className="w-full h-2.5 bg-lab-surface0 rounded-full overflow-hidden border border-lab-surface1">
+              <div className="h-full bg-gradient-to-r from-lab-blue to-lab-blueLight rounded-full transition-all" style={{ width: '60%' }} />
             </div>
           </div>
         )}
         {node.type === 'Treeview' && (
-          <div className="w-full h-full bg-lab-base/40 rounded overflow-hidden text-xs border border-lab-surface0">
+          <div className="w-full h-full bg-lab-base/60 rounded overflow-hidden text-xs border border-lab-surface0 flex flex-col">
+            <div className="text-[10px] text-lab-overlay0 px-2 py-0.5 bg-lab-surface0/30 border-b border-lab-surface0">{node.abstract_props.label || 'Treeview'}</div>
             <div className="flex border-b border-lab-surface0 bg-lab-surface0/50">
-              <div className="px-2 py-1 flex-1 font-medium text-lab-subtext0">Column 1</div>
-              <div className="px-2 py-1 flex-1 font-medium text-lab-subtext0">Column 2</div>
+              <div className="px-2 py-0.5 flex-1 font-medium text-lab-subtext0">Column 1</div>
+              <div className="px-2 py-0.5 flex-1 font-medium text-lab-subtext0">Column 2</div>
             </div>
             <div className="flex border-b border-lab-surface0/50">
-              <div className="px-2 py-1 flex-1 text-lab-subtext0">Item 1</div>
-              <div className="px-2 py-1 flex-1 text-lab-subtext0">Value 1</div>
+              <div className="px-2 py-0.5 flex-1 text-lab-subtext0">Item 1</div>
+              <div className="px-2 py-0.5 flex-1 text-lab-subtext0">Value 1</div>
             </div>
             <div className="flex border-b border-lab-surface0/50">
-              <div className="px-2 py-1 flex-1 text-lab-subtext0">Item 2</div>
-              <div className="px-2 py-1 flex-1 text-lab-subtext0">Value 2</div>
+              <div className="px-2 py-0.5 flex-1 text-lab-subtext0">Item 2</div>
+              <div className="px-2 py-0.5 flex-1 text-lab-subtext0">Value 2</div>
             </div>
           </div>
         )}
         {node.type === 'Separator' && (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-full h-px bg-lab-surface2" style={{ transform: node.geometry.w < node.geometry.h ? 'rotate(90deg)' : 'none' }} />
+          <div className="w-full h-full flex items-center justify-center relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="bg-lab-surface2 rounded-full"
+                style={node.geometry.w >= node.geometry.h
+                  ? { width: '100%', height: 2 }
+                  : { width: 2, height: '100%' }
+                }
+              />
+            </div>
+            <span className="text-[9px] text-lab-overlay0 bg-lab-base/80 px-1 rounded z-10">|</span>
           </div>
         )}
         {node.type === 'Scrollbar' && (
           <div className="w-full h-full flex items-center justify-center p-0.5">
             {node.geometry.w > node.geometry.h ? (
-              <div className="w-full h-3 bg-lab-surface0 rounded-full relative">
-                <div className="absolute left-2 top-0 h-full w-8 bg-lab-surface2 rounded-full" />
+              <div className="w-full h-4 bg-lab-surface0 rounded-full relative border border-lab-surface1">
+                <div className="absolute left-2 top-0.5 h-3 w-8 bg-lab-surface2 rounded-full border border-lab-surface1" />
               </div>
             ) : (
-              <div className="h-full w-3 bg-lab-surface0 rounded-full relative">
-                <div className="absolute top-2 left-0 w-full h-8 bg-lab-surface2 rounded-full" />
+              <div className="h-full w-4 bg-lab-surface0 rounded-full relative border border-lab-surface1">
+                <div className="absolute top-2 left-0.5 w-3 h-8 bg-lab-surface2 rounded-full border border-lab-surface1" />
               </div>
             )}
           </div>
